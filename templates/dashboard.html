@@ -236,11 +236,17 @@
         /* DETAILS COMPONENT */
         details.guide { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin: 12px 0 4px 0; }
         details.guide[open] { box-shadow: 0 2px 8px rgba(0,0,0,.12); }
-        details.guide summary { cursor: pointer; font-weight: 600; outline: none; }
+        details.guide summary { cursor: pointer; font-weight: 600; outline: none; color:#111; }
+        details.guide, details.guide p, details.guide li { color:#111; }
         details.guide summary::-webkit-details-marker { display:none; }
         details.guide summary:after { content:'\25BE'; float: right; transition: transform .25s; }
         details.guide[open] summary:after { transform: rotate(180deg); }
         .a11y-sr-only { position: absolute; left: -9999px; top: auto; width: 1px; height:1px; overflow:hidden; }
+        @media (prefers-color-scheme: dark) {
+            details.guide { background:#1f2937; }
+            details.guide summary { color:#e5e7eb; }
+            details.guide, details.guide p, details.guide li { color:#e5e7eb; }
+        }
     </style>
 </head>
 
