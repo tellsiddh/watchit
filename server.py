@@ -219,9 +219,10 @@ def index():
     """
 
 
+init_db()
+aggregator = Aggregator()
+threading.Thread(target=wm_listener, daemon=True).start()
+threading.Thread(target=snapshot_worker, daemon=True).start()
+
 if __name__ == "__main__":
-    init_db()
-    aggregator = Aggregator()
-    threading.Thread(target=wm_listener, daemon=True).start()
-    threading.Thread(target=snapshot_worker, daemon=True).start()
     app.run(host="0.0.0.0", port=4000)
