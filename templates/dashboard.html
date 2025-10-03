@@ -14,77 +14,121 @@
             color: #222;
             margin: 0;
             padding: 0;
+            line-height: 1.4;
         }
 
+        /* HEADER */
         header {
-            background: #2563eb;
+            background: linear-gradient(90deg, #2563eb, #1d4ed8);
             color: white;
-            padding: 12px;
+            padding: 20px;
             text-align: center;
         }
 
         header h1 {
             margin: 0;
-            font-size: clamp(1.2rem, 5vw, 2rem);
+            font-size: clamp(1.4rem, 6vw, 2.2rem);
+            font-weight: 600;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         header p {
-            margin-top: 4px;
-            font-size: clamp(0.8rem, 3vw, 1rem);
-            opacity: 0.9;
+            margin-top: 6px;
+            font-size: clamp(0.85rem, 3vw, 1rem);
+            opacity: 0.95;
         }
 
+        /* MAIN WRAPPER */
         main {
-            max-width: 900px;
+            max-width: 1000px;
             margin: auto;
-            padding: 12px;
+            padding: 16px;
         }
 
-        .meta {
-            font-size: 0.85em;
-            margin: 12px 0;
-            color: #555;
-            text-align: center;
-        }
-
+        /* CARDS GRID */
         .cards {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin: 16px 0;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin: 20px 0;
         }
 
         .card {
             background: white;
-            border-radius: 10px;
+            border-radius: 12px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            padding: 14px;
+            padding: 18px;
             text-align: center;
-            margin: 0 10px;
-            /* breathing space on mobile */
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .card h2 {
             margin: 0;
-            font-size: clamp(1.2rem, 6vw, 1.8rem);
+            font-size: clamp(1.3rem, 6vw, 2rem);
+            font-weight: 700;
             color: #2563eb;
         }
 
         .card span {
             display: block;
-            margin-top: 3px;
-            font-size: 0.8em;
+            margin-top: 6px;
+            font-size: 0.85em;
             color: #666;
         }
 
+        /* PULSE ANIMATION ON UPDATES */
+        .pulse {
+            animation: pulse 0.5s;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* BUTTON */
+        button {
+            padding: 10px 18px;
+            font-size: 0.95em;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            margin: 16px auto;
+            display: block;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        button:hover {
+            background: #1e4fc7;
+            transform: scale(1.05);
+        }
+
+        /* CHART */
         #chart-container {
             background: white;
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 12px;
+            padding: 16px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            margin: 20px 10px;
-            height: 250px;
-            /* fixed smaller height on mobile */
+            margin: 20px 0;
+            height: 300px;
+            /* default for mobile */
         }
 
         #activityChart {
@@ -93,50 +137,76 @@
         }
 
         #chart-container h3 {
-            margin: 0 0 6px 0;
+            margin: 0 0 8px 0;
+            font-size: clamp(1rem, 3vw, 1.2rem);
             color: #333;
-            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
         }
 
         #chart-container p {
-            margin: 0 0 8px 0;
+            margin: 0 0 12px 0;
+            font-size: 0.85rem;
             color: #666;
-            font-size: 0.8rem;
         }
 
-        button {
+        /* FOOTER */
+        footer {
+            text-align: center;
+            margin: 24px 0 12px 0;
+        }
+
+        footer p {
+            display: inline-block;
+            background: #f3f4f6;
             padding: 8px 14px;
-            font-size: 0.85em;
-            cursor: pointer;
-            border: none;
-            border-radius: 6px;
-            background: #2563eb;
-            color: white;
-            margin: 16px auto;
-            display: block;
-            transition: background 0.2s;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #444;
+            font-style: italic;
         }
 
-        button:hover {
-            background: #1e4fc7;
-        }
-
-        /* Desktop/tablet enhancements */
+        /* RESPONSIVE FOR TABLET + DESKTOP */
         @media (min-width: 640px) {
             .cards {
-                flex-direction: row;
-                justify-content: center;
-            }
-
-            .card {
-                flex: 1;
-                max-width: 220px;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             }
 
             #chart-container {
                 height: 400px;
-                /* taller chart for desktops */
-                margin: 30px auto;
+            }
+
+            footer p {
+                font-size: 1rem;
+            }
+        }
+
+        /* DARK MODE */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #111827;
+                color: #e5e7eb;
+            }
+
+            .card {
+                background: #1f2937;
+                color: #e5e7eb;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+            }
+
+            .card span {
+                color: #9ca3af;
+            }
+
+            header {
+                background: linear-gradient(90deg, #1e3a8a, #1d4ed8);
+            }
+
+            #chart-container {
+                background: #1f2937;
+            }
+
+            footer p {
+                background: #374151;
+                color: #e5e7eb;
             }
         }
     </style>
@@ -144,32 +214,36 @@
 
 <body>
     <header>
-        <h1>📊 WatchIt Dashboard</h1>
-        <p>Tracking real-time Wikimedia edits and new pages from the global EventStream</p>
+        <h1>WatchIt Dashboard</h1>
+        <p>Tracking real-time Wikimedia edits and new pages from your last visit</p>
     </header>
 
     <main>
-        <div class="meta">
-            <div id="startTime">Start time: …</div>
-            <div id="currentTime">Now: …</div>
-        </div>
-
         <div class="cards">
             <div class="card">
                 <h2 id="edits">…</h2>
-                <span>Total Edits</span>
+                <span>Total Edits since you last visited</span>
             </div>
             <div class="card">
                 <h2 id="pages">…</h2>
-                <span>New Pages</span>
+                <span>New Pages since you last visited</span>
+            </div>
+            <div class="card">
+                <h2 id="startTimeCard">…</h2>
+                <span>Last Visited</span>
+            </div>
+            <div class="card">
+                <h2 id="currentTimeCard">…</h2>
+                <span>Current Time</span>
             </div>
         </div>
 
-        <button onclick="resetStart()">🔄 Reset Counter</button>
+
+        <button onclick="resetStart()">Reset Counter</button>
 
         <div id="chart-container">
             <h3>Activity per 10 seconds</h3>
-            <p>Blue = edits, Green = new pages per interval</p>
+            <p>Blue = edits, Green = new pages every 10 seconds</p>
             <canvas id="activityChart"></canvas>
         </div>
     </main>
@@ -247,8 +321,9 @@
             }
 
             const start = getStartTime();
-            document.getElementById("startTime").innerText = "Start time: " + formatTime(start);
-            document.getElementById("currentTime").innerText = "Now: " + formatTime(Date.now());
+            document.getElementById("startTimeCard").innerText = formatTime(start);
+            document.getElementById("currentTimeCard").innerText = formatTime(Date.now());
+
 
             try {
                 // totals
