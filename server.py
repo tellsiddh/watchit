@@ -2,7 +2,7 @@
 import json, sqlite3, threading, time, logging
 from datetime import datetime
 import requests
-from flask import Flask, Response, request, jsonify, stream_with_context
+from flask import Flask, Response, request, jsonify, stream_with_context, render_template
 from sseclient import SSEClient
 
 DB_PATH = "watchit.db"
@@ -148,109 +148,9 @@ def create_app():
                 yield f"data: {json.dumps(aggregator.get_counts_since(start_ts))}\n\n"
 
         return Response(stream_with_context(gen()), mimetype="text/event-stream")
-
     @app.route("/")
     def index():
-        return """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>WatchIt Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; background: #fafafa; color: #222; text-align: center; padding: 40px; }
-    h1 { margin-bottom: 10px; }
-    .meta { font-size: 1em; margin-bottom: 20px; color: #555; }
-    .stats { font-size: 1.5em; margin: 20px 0; }
-    canvas { max-width: 600px; margin: 20px auto; }
-    button { padding: 8px 16px; font-size: 1em; cursor: pointer; margin-top: 10px; }
-  </style>
-</head>
-<body>
-  <h1>📊 Wikimedia Activity</h1>
-
-  <div class="meta">
-    <div id="startTime">Start time: …</div>
-    <div id="currentTime">Now: …</div>
-  </div>
-
-  <div class="stats">
-    <div id="edits">Edits: …</div>
-    <div id="pages">Pages: …</div>
-  </div>
-  <button onclick="resetStart()">Reset Counter</button>
-  <canvas id="activityChart"></canvas>
-
-  <script>
-    const API_STATS = "/stats";
-    const API_HISTORY = "/history?limit=30"; // last 30 intervals (~5 minutes if 10s interval)
-
-    let chart = new Chart(document.getElementById('activityChart').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: [],
-        datasets: [
-          { label: 'Edits per 10s', data: [], backgroundColor: 'blue' },
-          { label: 'Pages per 10s', data: [], backgroundColor: 'green' }
-        ]
-      },
-      options: {
-        responsive: true,
-        scales: { x: { stacked: true }, y: { beginAtZero: true } }
-      }
-    });
-
-    function getStartTime() {
-      let start = localStorage.getItem("watchit_start");
-      if (!start) {
-        start = Date.now();
-        localStorage.setItem("watchit_start", start);
-      }
-      return parseInt(start, 10);
-    }
-
-    function formatTime(ms) {
-      return new Date(ms).toLocaleString();
-    }
-
-    function resetStart() {
-      const now = Date.now();
-      localStorage.setItem("watchit_start", now);
-      document.getElementById("startTime").innerText = "Start time: " + formatTime(now);
-      updateStats();
-    }
-
-    async function updateStats() {
-      const start = getStartTime();
-      document.getElementById("startTime").innerText = "Start time: " + formatTime(start);
-      document.getElementById("currentTime").innerText = "Now: " + formatTime(Date.now());
-
-      try {
-        // update totals
-        const respStats = await fetch(`${API_STATS}?start=${start}`);
-        const dataStats = await respStats.json();
-        document.getElementById("edits").innerText = `Edits: ${dataStats.edits}`;
-        document.getElementById("pages").innerText = `Pages: ${dataStats.pages}`;
-
-        // update per-interval chart
-        const respHist = await fetch(API_HISTORY);
-        const dataHist = await respHist.json();
-        chart.data.labels = dataHist.map(d => new Date(d.ts).toLocaleTimeString());
-        chart.data.datasets[0].data = dataHist.map(d => d.edits);
-        chart.data.datasets[1].data = dataHist.map(d => d.pages);
-        chart.update();
-      } catch (err) {
-        console.error("Failed to fetch stats/history", err);
-      }
-    }
-
-    updateStats();
-    setInterval(updateStats, 10000); // refresh every 10s
-  </script>
-</body>
-</html>
-"""
+        return render_template("dashboard.html")
 
     return app
 
