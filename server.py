@@ -9,7 +9,10 @@ DB_PATH = "watchit.db"
 WM_URL = "https://stream.wikimedia.org/v2/stream/recentchange"
 SNAPSHOT_INTERVAL = 10.0  # seconds
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+)
+
 
 def init_db():
     with sqlite3.connect(DB_PATH) as conn:
@@ -20,6 +23,7 @@ def init_db():
                 pages INTEGER NOT NULL
             )"""
         )
+
 
 class Aggregator:
     def __init__(self):
@@ -66,6 +70,7 @@ class Aggregator:
             "pages": pages,
         }
 
+
 def wm_listener():
     while True:
         try:
@@ -91,11 +96,13 @@ def wm_listener():
             logging.error("WM listener error: %s (retrying in 5s)", e)
             time.sleep(5)
 
+
 def snapshot_worker():
     while True:
         ts, edits, pages = aggregator.snapshot()
         logging.info("Snapshot %s edits=%s pages=%s", ts, edits, pages)
         time.sleep(SNAPSHOT_INTERVAL)
+
 
 def create_app():
     app = Flask(__name__)
@@ -108,25 +115,24 @@ def create_app():
             return jsonify({"error": "invalid start"}), 400
         return jsonify(aggregator.get_counts_since(start_ts))
 
-@app.route("/history")
-def history():
-    try:
-        limit = int(request.args.get("limit", 50))
-    except ValueError:
-        return jsonify({"error": "invalid limit"}), 400
+    @app.route("/history")
+    def history():
+        try:
+            limit = int(request.args.get("limit", 50))
+        except ValueError:
+            return jsonify({"error": "invalid limit"}), 400
 
-    with sqlite3.connect(DB_PATH) as conn:
-        rows = conn.execute(
-            "SELECT ts, edits, pages FROM snapshots ORDER BY ts DESC LIMIT ?",
-            (limit,)
-        ).fetchall()
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                "SELECT ts, edits, pages FROM snapshots ORDER BY ts DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
 
-    rows.reverse()
+        rows.reverse()
 
-    return jsonify([
-        {"ts": ts, "edits": edits, "pages": pages}
-        for ts, edits, pages in rows
-    ])
+        return jsonify(
+            [{"ts": ts, "edits": edits, "pages": pages} for ts, edits, pages in rows]
+        )
 
     @app.route("/sse")
     def sse():
@@ -177,17 +183,21 @@ def history():
   <canvas id="activityChart"></canvas>
 
   <script>
-    const API_URL = "/stats";
-    let chart;
-    const ctx = document.getElementById('activityChart').getContext('2d');
-    chart = new Chart(ctx, {
-      type: 'line',
+    const API_STATS = "/stats";
+    const API_HISTORY = "/history?limit=30"; // last 30 intervals (~5 minutes if 10s interval)
+
+    let chart = new Chart(document.getElementById('activityChart').getContext('2d'), {
+      type: 'bar',
       data: {
         labels: [],
         datasets: [
-          { label: 'Edits', data: [], borderColor: 'blue', fill: false },
-          { label: 'Pages', data: [], borderColor: 'green', fill: false }
+          { label: 'Edits per 10s', data: [], backgroundColor: 'blue' },
+          { label: 'Pages per 10s', data: [], backgroundColor: 'green' }
         ]
+      },
+      options: {
+        responsive: true,
+        scales: { x: { stacked: true }, y: { beginAtZero: true } }
       }
     });
 
@@ -208,10 +218,6 @@ def history():
       const now = Date.now();
       localStorage.setItem("watchit_start", now);
       document.getElementById("startTime").innerText = "Start time: " + formatTime(now);
-      chart.data.labels = [];
-      chart.data.datasets[0].data = [];
-      chart.data.datasets[1].data = [];
-      chart.update();
       updateStats();
     }
 
@@ -221,22 +227,26 @@ def history():
       document.getElementById("currentTime").innerText = "Now: " + formatTime(Date.now());
 
       try {
-        const resp = await fetch(`${API_URL}?start=${start}`);
-        const data = await resp.json();
-        document.getElementById("edits").innerText = `Edits: ${data.edits}`;
-        document.getElementById("pages").innerText = `Pages: ${data.pages}`;
-        chart.data.labels.push(new Date().toLocaleTimeString());
-        chart.data.datasets[0].data.push(data.edits);
-        chart.data.datasets[1].data.push(data.pages);
+        // update totals
+        const respStats = await fetch(`${API_STATS}?start=${start}`);
+        const dataStats = await respStats.json();
+        document.getElementById("edits").innerText = `Edits: ${dataStats.edits}`;
+        document.getElementById("pages").innerText = `Pages: ${dataStats.pages}`;
+
+        // update per-interval chart
+        const respHist = await fetch(API_HISTORY);
+        const dataHist = await respHist.json();
+        chart.data.labels = dataHist.map(d => new Date(d.ts).toLocaleTimeString());
+        chart.data.datasets[0].data = dataHist.map(d => d.edits);
+        chart.data.datasets[1].data = dataHist.map(d => d.pages);
         chart.update();
       } catch (err) {
-        console.error("Failed to fetch stats", err);
+        console.error("Failed to fetch stats/history", err);
       }
     }
 
-    // initial
     updateStats();
-    setInterval(updateStats, 5000);
+    setInterval(updateStats, 10000); // refresh every 10s
   </script>
 </body>
 </html>
