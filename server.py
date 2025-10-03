@@ -100,7 +100,7 @@ def wm_listener():
 def snapshot_worker():
     while True:
         ts, edits, pages = aggregator.snapshot()
-        logging.info("Snapshot %s edits=%s pages=%s", ts, edits, pages)
+        # logging.info("Snapshot %s edits=%s pages=%s", ts, edits, pages)
         time.sleep(SNAPSHOT_INTERVAL)
 
 
