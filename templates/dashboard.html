@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>WatchIt Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link id="dynamic-favicon" rel="icon" href="data:,">
     <style>
         body {
             font-family: "Segoe UI", Roboto, Arial, sans-serif;
@@ -171,7 +173,9 @@
             <canvas id="activityChart"></canvas>
         </div>
     </main>
-
+    <footer>
+        <p id="funFact">Loading a fun fact...</p>
+    </footer>
     <script>
         const API_STATS = "/stats";
         const API_HISTORY = "/history?limit=50";
@@ -221,8 +225,27 @@
             chart.update();
             updateStats();
         }
-
+        let lastPages = 0;
         async function updateStats() {
+            function updateFavicon(count) {
+                const canvas = document.createElement("canvas");
+                canvas.width = 32; canvas.height = 32;
+                const ctx = canvas.getContext("2d");
+
+                // background
+                ctx.fillStyle = "#2563eb";
+                ctx.fillRect(0, 0, 32, 32);
+
+                // text = edits count (last 2 digits for space)
+                ctx.fillStyle = "white";
+                ctx.font = "bold 16px sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(count % 100, 16, 16);
+
+                document.getElementById("dynamic-favicon").href = canvas.toDataURL("image/png");
+            }
+
             const start = getStartTime();
             document.getElementById("startTime").innerText = "Start time: " + formatTime(start);
             document.getElementById("currentTime").innerText = "Now: " + formatTime(Date.now());
@@ -232,8 +255,16 @@
                 const respStats = await fetch(`${API_STATS}?start=${start}`);
                 const dataStats = await respStats.json();
                 document.getElementById("edits").innerText = dataStats.edits;
+                updateFavicon(dataStats.edits);
                 document.getElementById("pages").innerText = dataStats.pages;
-
+                if (dataStats.pages > lastPages) {
+                    confetti({
+                        particleCount: 80,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                }
+                lastPages = dataStats.pages;
                 // per-interval
                 const respHist = await fetch(API_HISTORY);
                 const dataHist = await respHist.json();
@@ -248,6 +279,32 @@
 
         updateStats();
         setInterval(updateStats, 10000);
+        async function fetchOnThisDay() {
+            try {
+                const today = new Date();
+                const month = today.getMonth() + 1; // 0-based → +1
+                const day = today.getDate();
+                const url = `https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${month}/${day}`;
+
+                const resp = await fetch(url);
+                const data = await resp.json();
+
+                if (data.events && data.events.length > 0) {
+                    const randomEvent = data.events[Math.floor(Math.random() * data.events.length)];
+                    document.getElementById("funFact").innerHTML =
+                        `📅 On this day in <strong>${randomEvent.year}</strong>: ${randomEvent.text}`;
+                } else {
+                    document.getElementById("funFact").innerText = "No events found for today!";
+                }
+            } catch (err) {
+                console.error("Failed to fetch on-this-day fact", err);
+                document.getElementById("funFact").innerText = "Could not load a fact right now.";
+            }
+        }
+
+        fetchOnThisDay();
+        setInterval(fetchOnThisDay, 10000);
+
     </script>
 </body>
 
