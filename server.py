@@ -2,7 +2,14 @@
 import json, sqlite3, threading, time, logging
 from datetime import datetime
 import requests
-from flask import Flask, Response, request, jsonify, stream_with_context, render_template
+from flask import (
+    Flask,
+    Response,
+    request,
+    jsonify,
+    stream_with_context,
+    render_template,
+)
 from sseclient import SSEClient
 
 DB_PATH = "watchit.db"
@@ -148,6 +155,7 @@ def create_app():
                 yield f"data: {json.dumps(aggregator.get_counts_since(start_ts))}\n\n"
 
         return Response(stream_with_context(gen()), mimetype="text/event-stream")
+
     @app.route("/")
     def index():
         return render_template("dashboard.html")

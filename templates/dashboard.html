@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <title>WatchIt Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="WatchIt shows real-time counts of Wikipedia edits and new pages since your last visit. Updated every 10 seconds with a lightweight historical spark." />
+    <meta name="description"
+        content="WatchIt shows real-time counts of Wikipedia edits and new pages since your last visit. Updated every 10 seconds with a lightweight historical spark." />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link id="dynamic-favicon" rel="icon" href="data:,">
@@ -48,9 +49,28 @@
             text-align: left;
             line-height: 1.5;
         }
-        .intro p { margin: 0 0 10px 0; }
-        .quick-facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px 0; padding: 0; list-style: none; }
-        .quick-facts li { background: #1e40af; color: #fff; font-size: 0.75rem; letter-spacing: .5px; padding: 4px 10px; border-radius: 999px; }
+
+        .intro p {
+            margin: 0 0 10px 0;
+        }
+
+        .quick-facts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 0 0 12px 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .quick-facts li {
+            background: #1e40af;
+            color: #fff;
+            font-size: 0.75rem;
+            letter-spacing: .5px;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
 
         /* MAIN WRAPPER */
         main {
@@ -234,18 +254,68 @@
         }
 
         /* DETAILS COMPONENT */
-        details.guide { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin: 12px 0 4px 0; }
-        details.guide[open] { box-shadow: 0 2px 8px rgba(0,0,0,.12); }
-        details.guide summary { cursor: pointer; font-weight: 600; outline: none; color:#111; }
-        details.guide, details.guide p, details.guide li { color:#111; }
-        details.guide summary::-webkit-details-marker { display:none; }
-        details.guide summary:after { content:'\25BE'; float: right; transition: transform .25s; }
-        details.guide[open] summary:after { transform: rotate(180deg); }
-        .a11y-sr-only { position: absolute; left: -9999px; top: auto; width: 1px; height:1px; overflow:hidden; }
+        details.guide {
+            background: #fff;
+            border-radius: 10px;
+            padding: 14px 18px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
+            margin: 12px 0 4px 0;
+        }
+
+        details.guide[open] {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+        }
+
+        details.guide summary {
+            cursor: pointer;
+            font-weight: 600;
+            outline: none;
+            color: #111;
+        }
+
+        details.guide,
+        details.guide p,
+        details.guide li {
+            color: #111;
+        }
+
+        details.guide summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details.guide summary:after {
+            content: '\25BE';
+            float: right;
+            transition: transform .25s;
+        }
+
+        details.guide[open] summary:after {
+            transform: rotate(180deg);
+        }
+
+        .a11y-sr-only {
+            position: absolute;
+            left: -9999px;
+            top: auto;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
         @media (prefers-color-scheme: dark) {
-            details.guide { background:#1f2937; }
-            details.guide summary { color:#e5e7eb; }
-            details.guide, details.guide p, details.guide li { color:#e5e7eb; }
+            details.guide {
+                background: #1f2937;
+            }
+
+            details.guide summary {
+                color: #e5e7eb;
+            }
+
+            details.guide,
+            details.guide p,
+            details.guide li {
+                color: #e5e7eb;
+            }
         }
     </style>
 </head>
@@ -255,23 +325,34 @@
         <h1>WatchIt Dashboard</h1>
         <p>Your personal window into live Wikipedia activity since you last loaded or reset the page.</p>
         <div class="intro">
-            <p><strong>What is this?</strong> WatchIt counts how many Wikipedia pages were <em>edited</em> and how many brand new pages were <em>created</em> since your last visit (or since you press Reset). It updates every 10 seconds and gives you a lightweight recent history chart.</p>
+            <p><strong>What is this?</strong> WatchIt counts how many Wikipedia pages were <em>edited</em> and how many
+                brand new pages were <em>created</em> since your last visit (or since you press Reset). It updates every
+                10 seconds and gives you a lightweight recent history chart.</p>
             <ul class="quick-facts" aria-label="Quick facts about the dashboard">
-                <li>Live every 10s</li><li>Local start time</li><li>No login</li><li>Client-side reset</li><li>Dual y-axes</li>
+                <li>Live every 10s</li>
+                <li>Local start time</li>
+                <li>No login</li>
+                <li>Client-side reset</li>
+                <li>Dual y-axes</li>
             </ul>
             <details class="guide" aria-label="Explanation of the dashboard panels">
                 <summary>How to read this dashboard</summary>
                 <div style="font-size:0.9rem; margin-top:10px;">
                     <p>The four cards are live numbers:</p>
                     <ul style="margin:0 0 10px 18px; padding:0;">
-                        <li><strong>Total Edits</strong>: Number of edit events observed since your local start time.</li>
+                        <li><strong>Total Edits</strong>: Number of edit events observed since your local start time.
+                        </li>
                         <li><strong>New Pages</strong>: How many brand new pages were created in the same window.</li>
-                        <li><strong>Last Visited</strong>: The timestamp (stored only in your browser) we treat as the beginning of your session.</li>
+                        <li><strong>Last Visited</strong>: The timestamp (stored only in your browser) we treat as the
+                            beginning of your session.</li>
                         <li><strong>Current Time</strong>: For quick reference & sync confidence.</li>
                     </ul>
-                    <p>The line chart aggregates activity into 10‑second buckets. Blue = edits, Green = new pages. The right-hand y‑axis corresponds to new pages so the lower-volume series stays readable.</p>
-                    <p><strong>Reset Counter</strong> sets a new local start time and wipes the short history so you can begin a fresh observation interval.</p>
-                    <p style="opacity:.8;">Data sourced from Wikipedia recent change streams. This page does not store personal data; your start time lives only in <code>localStorage</code>.</p>
+                    <p>The line chart aggregates activity into 10‑second buckets. Blue = edits, Green = new pages. The
+                        right-hand y‑axis corresponds to new pages so the lower-volume series stays readable.</p>
+                    <p><strong>Reset Counter</strong> sets a new local start time and wipes the short history so you can
+                        begin a fresh observation interval.</p>
+                    <p style="opacity:.8;">Data sourced from Wikipedia recent change streams. This page does not store
+                        personal data; your start time lives only in <code>localStorage</code>.</p>
                 </div>
             </details>
         </div>
@@ -298,8 +379,10 @@
             </div>
         </div>
 
-        <button onclick="resetStart()" aria-describedby="reset-help" title="Set a new local start time and clear the mini history chart">Reset Counter</button>
-        <p id="reset-help" style="text-align:center; font-size:0.75rem; margin-top:-6px; color:#555;">Resets only your browser's local timer; does not affect global data.</p>
+        <button onclick="resetStart()" aria-describedby="reset-help"
+            title="Set a new local start time and clear the mini history chart">Reset Counter</button>
+        <p id="reset-help" style="text-align:center; font-size:0.75rem; margin-top:-6px; color:#555;">Resets only your
+            browser's local timer; does not affect global data.</p>
 
         <div id="chart-container">
             <h3>Activity per 10 seconds</h3>
