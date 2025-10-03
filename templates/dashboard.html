@@ -6,133 +6,137 @@
     <title>WatchIt Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-body {
-  font-family: "Segoe UI", Roboto, Arial, sans-serif;
-  background: #f9fafb;
-  color: #222;
-  margin: 0;
-  padding: 0;
-}
+        body {
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+            background: #f9fafb;
+            color: #222;
+            margin: 0;
+            padding: 0;
+        }
 
-header {
-  background: #2563eb;
-  color: white;
-  padding: 12px;
-  text-align: center;
-}
+        header {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            text-align: center;
+        }
 
-header h1 {
-  margin: 0;
-  font-size: clamp(1.2rem, 5vw, 2rem);
-}
+        header h1 {
+            margin: 0;
+            font-size: clamp(1.2rem, 5vw, 2rem);
+        }
 
-header p {
-  margin-top: 4px;
-  font-size: clamp(0.8rem, 3vw, 1rem);
-  opacity: 0.9;
-}
+        header p {
+            margin-top: 4px;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            opacity: 0.9;
+        }
 
-main {
-  max-width: 900px;
-  margin: auto;
-  padding: 12px;
-}
+        main {
+            max-width: 900px;
+            margin: auto;
+            padding: 12px;
+        }
 
-.meta {
-  font-size: 0.85em;
-  margin: 12px 0;
-  color: #555;
-  text-align: center;
-}
+        .meta {
+            font-size: 0.85em;
+            margin: 12px 0;
+            color: #555;
+            text-align: center;
+        }
 
-.cards {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin: 16px 0;
-}
+        .cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 16px 0;
+        }
 
-.card {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  padding: 14px;
-  text-align: center;
-  margin: 0 10px; /* breathing space on mobile */
-}
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            padding: 14px;
+            text-align: center;
+            margin: 0 10px;
+            /* breathing space on mobile */
+        }
 
-.card h2 {
-  margin: 0;
-  font-size: clamp(1.2rem, 6vw, 1.8rem);
-  color: #2563eb;
-}
+        .card h2 {
+            margin: 0;
+            font-size: clamp(1.2rem, 6vw, 1.8rem);
+            color: #2563eb;
+        }
 
-.card span {
-  display: block;
-  margin-top: 3px;
-  font-size: 0.8em;
-  color: #666;
-}
+        .card span {
+            display: block;
+            margin-top: 3px;
+            font-size: 0.8em;
+            color: #666;
+        }
 
-#chart-container {
-  background: white;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  margin: 20px 10px;
-  height: 250px; /* fixed smaller height on mobile */
-}
+        #chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px 10px;
+            height: 250px;
+            /* fixed smaller height on mobile */
+        }
 
-#activityChart {
-  width: 100% !important;
-  height: 100% !important;
-}
+        #activityChart {
+            width: 100% !important;
+            height: 100% !important;
+        }
 
-#chart-container h3 {
-  margin: 0 0 6px 0;
-  color: #333;
-  font-size: clamp(0.9rem, 2.5vw, 1.2rem);
-}
+        #chart-container h3 {
+            margin: 0 0 6px 0;
+            color: #333;
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+        }
 
-#chart-container p {
-  margin: 0 0 8px 0;
-  color: #666;
-  font-size: 0.8rem;
-}
+        #chart-container p {
+            margin: 0 0 8px 0;
+            color: #666;
+            font-size: 0.8rem;
+        }
 
-button {
-  padding: 8px 14px;
-  font-size: 0.85em;
-  cursor: pointer;
-  border: none;
-  border-radius: 6px;
-  background: #2563eb;
-  color: white;
-  margin: 16px auto;
-  display: block;
-  transition: background 0.2s;
-}
+        button {
+            padding: 8px 14px;
+            font-size: 0.85em;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            margin: 16px auto;
+            display: block;
+            transition: background 0.2s;
+        }
 
-button:hover {
-  background: #1e4fc7;
-}
+        button:hover {
+            background: #1e4fc7;
+        }
 
-/* Desktop/tablet enhancements */
-@media (min-width: 640px) {
-  .cards {
-    flex-direction: row;
-    justify-content: center;
-  }
-  .card {
-    flex: 1;
-    max-width: 220px;
-  }
-  #chart-container {
-    height: 400px; /* taller chart for desktops */
-    margin: 30px auto;
-  }
-}
+        /* Desktop/tablet enhancements */
+        @media (min-width: 640px) {
+            .cards {
+                flex-direction: row;
+                justify-content: center;
+            }
 
+            .card {
+                flex: 1;
+                max-width: 220px;
+            }
+
+            #chart-container {
+                height: 400px;
+                /* taller chart for desktops */
+                margin: 30px auto;
+            }
+        }
     </style>
 </head>
 
