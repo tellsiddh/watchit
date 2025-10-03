@@ -6,7 +6,7 @@
     <title>WatchIt Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description"
-        content="WatchIt shows real-time counts of Wikipedia edits and new pages since your last visit. Updated every 10 seconds with a lightweight historical spark." />
+        content="WatchIt shows real-time counts of Wikipedia (edits and new pages) and Github (pushes, PRs, issues) since your last visit. Updated every 10 seconds with a lightweight historical spark." />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link id="dynamic-favicon" rel="icon" href="data:,">
@@ -323,10 +323,11 @@
 <body>
     <header>
         <h1>WatchIt Dashboard</h1>
-        <p>Your personal window into live Wikipedia activity since you last loaded or reset the page.</p>
+        <p>Your personal window into live Wikipedia and GitHub activity since you last loaded or reset the page.</p>
         <div class="intro">
             <p><strong>What is this?</strong> WatchIt counts how many Wikipedia pages were <em>edited</em> and how many
-                brand new pages were <em>created</em> since your last visit (or since you press Reset). It updates every
+                brand new pages were <em>created</em> since your last visit (or since you press Reset). It also tracks
+                GitHub activity (pushes, PRs, issues). It updates every
                 10 seconds and gives you a lightweight recent history chart.</p>
             <ul class="quick-facts" aria-label="Quick facts about the dashboard">
                 <li>Live every 10s</li>
@@ -346,9 +347,17 @@
                         <li><strong>Last Visited</strong>: The timestamp (stored only in your browser) we treat as the
                             beginning of your session.</li>
                         <li><strong>Current Time</strong>: For quick reference & sync confidence.</li>
+                        <li><strong>GitHub Pushes</strong>: Number of push events observed since your local start time.
+                        </li>
+                        <li><strong>GitHub PRs</strong>: Number of pull requests opened since your local start time.
+                        </li>
+                        <li><strong>GitHub Issues</strong>: Number of issues opened since your local start time.</li>
                     </ul>
                     <p>The line chart aggregates activity into 10‑second buckets. Blue = edits, Green = new pages. The
                         right-hand y‑axis corresponds to new pages so the lower-volume series stays readable.</p>
+                    <p>The second chart aggregates GitHub activity into 10-second buckets. Purple = pushes, Orange =
+                        PRs, Red = issues. The right-hand y-axis corresponds to PRs so the lower-volume series stays
+                        readable.</p>
                     <p><strong>Reset Counter</strong> sets a new local start time and wipes the short history so you can
                         begin a fresh observation interval.</p>
                     <p style="opacity:.8;">Data sourced from Wikipedia recent change streams. This page does not store
@@ -359,7 +368,7 @@
     </header>
 
     <main>
-        <h2 class="section-title" id="live-stats-heading">Live Counters</h2>
+        <h2 class="section-title" id="live-stats-heading">Wikipedia Live Activity</h2>
         <div class="cards" role="group" aria-labelledby="live-stats-heading">
             <div class="card">
                 <h2 id="edits" aria-live="polite" aria-label="Total edits since start">…</h2>
@@ -378,6 +387,21 @@
                 <span>Current Time</span>
             </div>
         </div>
+        <h2 class="section-title" id="github-stats-heading">GitHub Live Activity</h2>
+        <div class="cards" role="group" aria-labelledby="github-stats-heading">
+            <div class="card">
+                <h2 id="githubPushes">…</h2>
+                <span>Push events</span>
+            </div>
+            <div class="card">
+                <h2 id="githubPRs">…</h2>
+                <span>Pull requests</span>
+            </div>
+            <div class="card">
+                <h2 id="githubIssues">…</h2>
+                <span>Issues opened</span>
+            </div>
+        </div>
 
         <button onclick="resetStart()" aria-describedby="reset-help"
             title="Set a new local start time and clear the mini history chart">Reset Counter</button>
@@ -389,6 +413,12 @@
             <p>Blue = edits, Green = new pages every 10 seconds</p>
             <canvas id="activityChart"></canvas>
         </div>
+        <div id="chart-container">
+            <h3>GitHub events per 10 seconds</h3>
+            <p>Purple = pushes, Orange = PRs, Red = issues</p>
+            <canvas id="githubChart"></canvas>
+        </div>
+
     </main>
     <footer>
         <p id="funFact">Loading a fun fact...</p>
@@ -523,6 +553,63 @@
 
         fetchOnThisDay();
         setInterval(fetchOnThisDay, 10000);
+
+        const API_GITHUB_STATS = "/github_stats";
+        const API_GITHUB_HISTORY = "/github_history?limit=50";
+
+        // GitHub chart
+        let githubChart = new Chart(document.getElementById('githubChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { label: 'Pushes per 10s', data: [], borderColor: 'purple', yAxisID: 'yPushes', fill: false },
+                    { label: 'PRs per 10s', data: [], borderColor: 'orange', yAxisID: 'yPRs', fill: false },
+                    { label: 'Issues per 10s', data: [], borderColor: 'red', yAxisID: 'yIssues', fill: false }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: { callbacks: { label: ctx => ctx.dataset.label + ": " + ctx.raw } }
+                },
+                scales: {
+                    yPushes: { type: 'linear', position: 'left', beginAtZero: true },
+                    yPRs: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false } },
+                    yIssues: { display: false } // overlay issues on left axis
+                }
+            }
+        });
+
+        async function updateGitHubStats() {
+            const start = getStartTime();
+            try {
+                // totals
+                const respStats = await fetch(`${API_GITHUB_STATS}?start=${start}`);
+                const dataStats = await respStats.json();
+                document.getElementById("githubPushes").innerText = dataStats.pushes;
+                document.getElementById("githubPRs").innerText = dataStats.prs;
+                document.getElementById("githubIssues").innerText = dataStats.issues;
+
+                // per-interval
+                const respHist = await fetch(API_GITHUB_HISTORY);
+                const dataHist = await respHist.json();
+                githubChart.data.labels = dataHist.map(d => new Date(d.ts).toLocaleTimeString());
+                githubChart.data.datasets[0].data = dataHist.map(d => d.pushes);
+                githubChart.data.datasets[1].data = dataHist.map(d => d.prs);
+                githubChart.data.datasets[2].data = dataHist.map(d => d.issues);
+                githubChart.update();
+            } catch (err) {
+                console.error("Failed to fetch GitHub stats/history", err);
+            }
+        }
+
+        // run alongside Wikipedia updater
+        updateGitHubStats();
+        setInterval(updateGitHubStats, 10000);
 
     </script>
 </body>
